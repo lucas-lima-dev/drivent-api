@@ -14,6 +14,12 @@ async function findTicket(enrollmentId: number): Promise<any> {
   });
 }
 
+async function findTicketById(ticketId: number) {
+  return prisma.ticket.findUnique({
+    where: { id: ticketId },
+  });
+}
+
 async function create(enrollmentId: number, ticketTypeId: number) {
   return prisma.ticket.create({
     data: {
@@ -30,6 +36,7 @@ async function create(enrollmentId: number, ticketTypeId: number) {
 const ticketsRepository = {
   getAllTickets,
   findTicket,
+  findTicketById,
   create,
 };
 
