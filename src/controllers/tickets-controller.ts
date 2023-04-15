@@ -3,6 +3,14 @@ import httpStatus from 'http-status';
 import { AuthenticatedRequest } from '@/middlewares';
 import ticketsService from '@/services/tickets-service';
 
+export async function getAllTickets(req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<any> {
+  try {
+    const tickets = await ticketsService.getAllTickets();
+    return res.status(httpStatus.OK).send(tickets);
+  } catch (error) {
+    next(error);
+  }
+}
 async function getTicketsByUser(req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<any> {
   const { userId } = req;
 
@@ -11,11 +19,11 @@ async function getTicketsByUser(req: AuthenticatedRequest, res: Response, next: 
     return res.status(httpStatus.OK).send(ticket);
   } catch (error) {
     next(error);
-    // return res.sendStatus(httpStatus.NO_CONTENT);
   }
 }
 
 const ticketsController = {
+  getAllTickets,
   getTicketsByUser,
 };
 
