@@ -2,11 +2,11 @@ import { Enrollment, Ticket } from '@prisma/client';
 import { prisma } from '@/config';
 
 async function getAllTickets() {
-  return prisma.ticketType.findMany();
+  return await prisma.ticketType.findMany();
 }
 
 async function findTicket(enrollmentId: number): Promise<any> {
-  return prisma.ticket.findFirst({
+  return await prisma.ticket.findFirst({
     where: { enrollmentId },
     include: {
       TicketType: true,
@@ -15,13 +15,19 @@ async function findTicket(enrollmentId: number): Promise<any> {
 }
 
 async function findTicketById(ticketId: number) {
-  return prisma.ticket.findUnique({
+  return await prisma.ticket.findFirst({
     where: { id: ticketId },
   });
 }
 
+async function findTicketTypeById(ticketTypeId: number) {
+  return await prisma.ticketType.findFirst({
+    where: { id: ticketTypeId },
+  });
+}
+
 async function create(enrollmentId: number, ticketTypeId: number) {
-  return prisma.ticket.create({
+  return await prisma.ticket.create({
     data: {
       status: 'RESERVED',
       ticketTypeId,
@@ -33,11 +39,20 @@ async function create(enrollmentId: number, ticketTypeId: number) {
   });
 }
 
+async function updateTicketStatusByTicketId(ticketId: number) {
+  return await prisma.ticket.update({
+    where: { id: ticketId },
+    data: { status: 'PAID' },
+  });
+}
+
 const ticketsRepository = {
   getAllTickets,
   findTicket,
   findTicketById,
+  findTicketTypeById,
   create,
+  updateTicketStatusByTicketId,
 };
 
 export default ticketsRepository;

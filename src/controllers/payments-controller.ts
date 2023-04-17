@@ -14,12 +14,20 @@ async function getPaymentInfoFromTicketId(req: AuthenticatedRequest, res: Respon
   }
 }
 
-// async function postCreatePaymentFromTicketId(req: AuthenticatedRequest, res: Response): Promise<any> {
-//   return [];
-// }
+async function finishPayment(_req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<any> {
+  const paymentInfo = _req.body;
+
+  try {
+    const paymentResponse = await paymentsService.finishPayment(paymentInfo);
+    return res.status(httpStatus.OK).send(paymentResponse[0]);
+  } catch (error) {
+    next(error);
+  }
+}
 
 const paymentController = {
   getPaymentInfoFromTicketId,
+  finishPayment,
 };
 
 export default paymentController;
