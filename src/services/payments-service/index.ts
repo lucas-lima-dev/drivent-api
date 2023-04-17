@@ -3,12 +3,16 @@ import enrollmentRepository from '@/repositories/enrollment-repository';
 import paymentsRepository from '@/repositories/payment-repository';
 import ticketsRepository from '@/repositories/tickets-repository';
 
-async function getPaymentInfoFromTicketId(ticketId: number): Promise<any> {
+async function getPaymentInfoFromTicketId(ticketId: number, userId: number): Promise<any> {
   const ticket = await ticketsRepository.findTicketById(ticketId);
   if (!ticket) throw notFoundError();
 
-  const checkTicketIdOwner = await paymentsRepository.checkOwnerByTicketId(ticketId);
-  if (!checkTicketIdOwner) throw unauthorizedError();
+  const enrollment = await enrollmentRepository.findEnrollmentById(ticket.enrollmentId);
+
+  if (enrollment.userId !== userId) throw unauthorizedError();
+
+  // const checkTicketIdOwner = await paymentsRepository.checkOwnerByTicketId(ticketId);
+  // if (!checkTicketIdOwner) throw unauthorizedError();
 
   const paymentInfoByTicketId = await paymentsRepository.findPaymentWithTicketId(ticketId);
   if (!paymentInfoByTicketId) throw notFoundError();
@@ -16,7 +20,7 @@ async function getPaymentInfoFromTicketId(ticketId: number): Promise<any> {
   return paymentInfoByTicketId;
 }
 
-async function finishPayment(paymentInfo: any): Promise<any> {
+async function finishPayment(paymentInfo: any, userId: number): Promise<any> {
   const { ticketId, cardData } = paymentInfo;
 
   const ticket = await ticketsRepository.findTicketById(ticketId);
@@ -28,8 +32,10 @@ async function finishPayment(paymentInfo: any): Promise<any> {
   const enrollment = await enrollmentRepository.findEnrollmentById(ticket.enrollmentId);
   if (!enrollment) throw notFoundError();
 
-  const checkTicketIdOwner = await paymentsRepository.checkOwnerByTicketId(ticketId);
-  if (!checkTicketIdOwner) throw unauthorizedError();
+  if (enrollment.userId !== userId) throw unauthorizedError();
+
+  // const checkTicketIdOwner = await paymentsRepository.checkOwnerByTicketId(ticketId);
+  // if (!checkTicketIdOwner) throw unauthorizedError();
 
   const paymentObj = {
     ticketId,
